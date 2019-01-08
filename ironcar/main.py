@@ -2,11 +2,6 @@
 
 import sys, getopt
 
-DEFAULT_IP_ADDRESS = "192.168.1.1"
-
-verbose = False
-socket_address = DEFAULT_IP_ADDRESS
-
 import torch
 
 import picamera
@@ -17,6 +12,18 @@ from threading import Thread
 import numpy as np
 
 import socketio
+
+DEFAULT_IP_ADDRESS = "192.168.1.1"
+
+verbose = False
+manual_mode=False
+socket_address = DEFAULT_IP_ADDRESS
+
+direction = 0
+speed = 0
+
+# Define function for verbose output
+verbose_print = print if verbose else lambda *a, **k: None
 
 def print_help():
     print("Usage : python3.6 main.py [-h|--help] [-v|--verbose] [-a|--address <ip_address>]")
@@ -37,6 +44,8 @@ def parse_args(args):
             sys.exit()
         elif o in ("-a", "--address"):
             socket_address = a
+        elif o in ("-m", "--manual"):
+            manual_mode=True
         else:
             assert False, "Unhandled option"
 
@@ -54,28 +63,51 @@ def wait_commands():
 
     # Set max speed
 
-    #Tweak parameters..
+    # Tweak parameters..
+
+    ## Only available in manual pilot
+
+    # Direction (analog)
+
+    # Speed (analog)
 
     pass
 
 def launch_threads():
-    camera_thread = Thread(target=acquire_image, args=())
-    commands_thread = Thread(target=wait_commands, args=())
 
+    verbose_print("Creating separate thread for image acquisition...")
+    camera_thread = Thread(target=acquire_image, args=())
     camera_thread.start()
+    verbose_print("Started")
+
+    verbose_print("Creating separate thread for sockets communication...")
+    commands_thread = Thread(target=wait_commands, args=())
     commands_thread.start()
+    verbose_print("Started")
 
 
 def autopilot():
+    # Auto pilot using pre-trained model
     pass
 
+def manualpilot():
+    # Manual pilot based on received commands
+    pass
 
 if __name__ == '__main__':
     parse_args(sys.argv[1:])
 
+    verbose_print("Using IP address ", socket_address)
+
     launch_threads()
 
+    print("System ready. Waiting for start.")
     # Wait for start command
 
-    # Start main loop
-    autopilot()
+    if not manual_mode:
+        print("Starting autopilot")
+        # Start main loop
+        autopilot()
+    else:
+        print("Starting manual pilot")
+        manualpilot()
