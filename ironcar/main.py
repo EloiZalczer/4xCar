@@ -4,8 +4,8 @@ import sys, getopt
 
 import torch
 
-import picamera
-import picamera.array
+# import picamera
+# import picamera.array
 
 from threading import Thread
 
@@ -56,33 +56,11 @@ def acquire_image():
 
     pass
 
-
-def wait_commands():
-
-    # Stop
-
-    # Set max speed
-
-    # Tweak parameters..
-
-    ## Only available in manual pilot
-
-    # Direction (analog)
-
-    # Speed (analog)
-
-    pass
-
 def launch_threads():
 
     verbose_print("Creating separate thread for image acquisition...")
     camera_thread = Thread(target=acquire_image, args=())
     camera_thread.start()
-    verbose_print("Started")
-
-    verbose_print("Creating separate thread for sockets communication...")
-    commands_thread = Thread(target=wait_commands, args=())
-    commands_thread.start()
     verbose_print("Started")
 
 
@@ -101,8 +79,18 @@ if __name__ == '__main__':
 
     launch_threads()
 
+    socket = socketio.Client()
+
+    @socket.on('command')
+    def parse_command(command):
+        print("Command : ", command)
+
+    socket.connect("http://localhost:3000")
+
     print("System ready. Waiting for start.")
     # Wait for start command
+
+    socket.wait()
 
     if not manual_mode:
         print("Starting autopilot")

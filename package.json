@@ -1,0 +1,23 @@
+{
+  "name": "ironcar_dufresne_zalczer",
+  "version": "1.0.0",
+  "description": "Autonomous Car Webapp For The Iron Car Competition",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "express": "^4.16.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://archives.plil.fr/ezalczer/IronCar.git"
+  },
+  "author": "",
+  "license": "ISC"
+}
