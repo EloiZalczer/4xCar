@@ -5,7 +5,8 @@ var height, width;
 var command = {direction: 0, speed: 0};
 var periodicSend;
 var socket;
-var connected=false;
+var connected = false;
+var running = false;
 
 window.onload = function(){
 
@@ -42,12 +43,59 @@ function connect(){
 	socket.on("connect_failed", () => {alert("Connection failed");})
 	socket.on("connect", function(){
 		connected = true;
-		periodicSend = setInterval(sendData, 20);
 	});
+}
+
+function setButtonTextAndColor(value, color){
+	var button = document.getElementById("stopstart")
+	button.style.background = color;
+	var text = button.firstChild;
+	text.data = value;
+}
+
+function displayCurrentSpeedAndDirection(speed, direction){
+	document.getElementById("speed_value").innerHTML = speed.toPrecision(5);
+	document.getElementById("direction_value").innerHTML = direction.toPrecision(5);
+} 
+
+function stopstart(){
+	if(running){
+		sendStop();
+		setButtonTextAndColor("Start", '#1CB841');
+		running = false;
+	}
+	else{
+		sendStart();
+		setButtonTextAndColor("Stop", '#CA3C3C');
+		running = true;
+	}
+}
+
+function sendStart(){
+	if(connected){
+		console.log("Sending start command");
+		socket.emit('start');
+		periodicSend = setInterval(sendData, 20);
+	}
+}
+
+function sendStop(){
+	if(connected){
+		console.log("Sending stop command");
+		socket.emit('stop');
+		clearInterval(periodicSend);
+	}
+}
+
+function sendMaxSpeed(){
+	max_speed = document.getElementById('max_speed').value;
+	console.log("Setting max speed : "+max_speed);
+	socket.emit('max_speed', max_speed);
 }
 
 function sendData(){
 	console.log("Sending data : "+command);
+	displayCurrentSpeedAndDirection(command.speed, command.direction);
 	socket.emit('command', command);
 }
 
@@ -58,10 +106,12 @@ function resetBall(){
 }
 
 function displayBall(coord){
-	ctx.fillStyle = "#808080"
+	ctx.fillStyle = "#B0B0B0"
 	ctx.fillRect(0, 0, width, height)
+	ctx.fillStyle = "#808080"
 	ctx.beginPath();
 	ctx.arc(coord.x, coord.y, 50, 0, 2*Math.PI);
+	ctx.fill();
 	ctx.stroke();
 }
 

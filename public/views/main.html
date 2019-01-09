@@ -2,10 +2,29 @@
 <html>
 	<head>
 		<title>Autonomous car control panel</title>
+		<link rel="stylesheet" type="text/css" href="/style/style.css"/>
 	</head>
 
 	<body>
+		<h1 id="maintitle">Control panel</h1>
+		<div id="buttons">
+			<button type="button" class = "button" id="stopstart" onclick="stopstart()">Start</button>
+			<input type="number" id="max_speed">
+			<button type="button" class = "button" id="set_max_speed" onclick ="sendMaxSpeed()">Set max speed</button>
+		</div>
+		<br/>
 		<canvas id="controller" width="500" height="250">Your browser does not seem to support HTML5 calvas :/</canvas>
+		<br/>
+		<div id="feedback">
+			<div class="inline" id="current_speed">
+				<h3>Current speed</h3>
+				<p id="speed_value">0</p>
+			</div>
+			<div class="inline" id="current_direction">
+				<h3>Current direction</h3>
+				<p id="direction_value">0</p>
+			</div>
+		</div>
 		<script type="text/javascript" src="/js/dependencies/socket.io.js"></script>
 		<script type="text/javascript" src="/js/controller.js"></script>
 	</body>

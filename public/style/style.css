@@ -1,0 +1,68 @@
+#stopstart{
+	color: white;
+	background: rgb(28, 184, 65);
+}
+
+#set_max_speed{
+	color: white;
+	background: rgb(66, 184, 221);
+}
+
+#controller{
+	border: 1px solid;
+}
+
+#maintitle{
+
+}
+
+.button {
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-size:15px;
+	font-weight:bold;
+	padding:5px 30px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #528009;
+}
+
+.button:hover {
+
+}
+
+.button:active {
+	position:relative;
+	top:1px;
+}
+
+body{
+	text-align:center;
+}
+
+#buttons{
+	display: inline-block;
+	padding: 20px;
+}
+
+#feedback{
+	display:inline-block;
+}
+
+#current_speed{
+	border: 1px solid;
+}
+
+#current_direction{
+	border: 1px solid;
+}
+
+div.inline {
+	float:left;
+	padding: 5px 10px;
+	margin: 0px 10px;
+	margin-top: 100px;
+}

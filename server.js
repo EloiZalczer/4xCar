@@ -41,4 +41,16 @@ io.sockets.on('connection', function(socket){
   socket.on('command', function(command){
     socket.broadcast.emit('command', command);
   });
+
+  socket.on('start', function(start){
+    socket.broadcast.emit('start');
+  });
+
+  socket.on('stop', function(stop){
+    socket.broadcast.emit('stop');
+  });
+
+  socket.on('max_speed', function(max_speed){
+    socket.broadcast.emit('max_speed', max_speed);
+  });
 });
