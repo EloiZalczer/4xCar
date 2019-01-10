@@ -35,7 +35,6 @@ start = Event()
 stop = Event()
 image_acquired = Event()
 record = Event()
-record.set()
 
 last_image = None
 
@@ -189,7 +188,7 @@ def save_hdf5():
 
     filename = time.strftime("%Y%m%d-%H%M%S") + ".h5"
 
-    hf = hdf5.File(filename, 'w')
+    hf = h5py.File(filename, 'w')
 
     images_np = np.array(images)
     
