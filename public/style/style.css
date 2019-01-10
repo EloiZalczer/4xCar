@@ -3,6 +3,11 @@
 	background: rgb(28, 184, 65);
 }
 
+#stopstart_record{
+	color: white;
+	background: rgb(28, 184, 65);
+}
+
 #set_max_speed{
 	color: white;
 	background: rgb(66, 184, 221);

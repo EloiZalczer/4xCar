@@ -7,6 +7,7 @@ var periodicSend;
 var socket;
 var connected = false;
 var running = false;
+var recording = false;
 
 window.onload = function(){
 
@@ -81,12 +82,12 @@ function stopstart(){
 function stopstart_record(){
 	if(recording){
 		sendStopRecording();
-		setRecordButtonTextAndColor("Start", '#1CB841');
+		setRecordButtonTextAndColor("Start recording", '#1CB841');
 		recording = false;
 	}
 	else{
 		sendStartRecording();
-		setRecordButtonTextAndColor("Stop", '#CA3C3C');
+		setRecordButtonTextAndColor("Stop recording", '#CA3C3C');
 		recording = true;
 	}
 }
