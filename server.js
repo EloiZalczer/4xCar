@@ -53,4 +53,13 @@ io.sockets.on('connection', function(socket){
   socket.on('max_speed', function(max_speed){
     socket.broadcast.emit('max_speed', max_speed);
   });
+
+  socket.on('start_record', function(){
+    socket.broadcast.emit('start_record');
+  });
+
+  socket.on('stop_record', function(){
+    socket.broadcast.emit('stop_record');
+  });
+
 });

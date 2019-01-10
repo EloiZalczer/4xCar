@@ -46,8 +46,15 @@ function connect(){
 	});
 }
 
-function setButtonTextAndColor(value, color){
+function setRunButtonTextAndColor(value, color){
 	var button = document.getElementById("stopstart")
+	button.style.background = color;
+	var text = button.firstChild;
+	text.data = value;
+}
+
+function setRecordButtonTextAndColor(value, color){
+	var button = document.getElementById("stopstart_record")
 	button.style.background = color;
 	var text = button.firstChild;
 	text.data = value;
@@ -61,13 +68,40 @@ function displayCurrentSpeedAndDirection(speed, direction){
 function stopstart(){
 	if(running){
 		sendStop();
-		setButtonTextAndColor("Start", '#1CB841');
+		setRunButtonTextAndColor("Start", '#1CB841');
 		running = false;
 	}
 	else{
 		sendStart();
-		setButtonTextAndColor("Stop", '#CA3C3C');
+		setRunButtonTextAndColor("Stop", '#CA3C3C');
 		running = true;
+	}
+}
+
+function stopstart_record(){
+	if(recording){
+		sendStopRecording();
+		setRecordButtonTextAndColor("Start", '#1CB841');
+		recording = false;
+	}
+	else{
+		sendStartRecording();
+		setRecordButtonTextAndColor("Stop", '#CA3C3C');
+		recording = true;
+	}
+}
+
+function sendStartRecording(){
+	if(connected){
+		console.log("Sending start recording command");
+		socket.emit('start_record');
+	}
+}
+
+function sendStopRecording(){
+	if(connected){
+		console.log("Sending stop recording command");
+		socket.emit('stop_record');
 	}
 }
 
