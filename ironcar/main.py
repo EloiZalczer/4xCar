@@ -59,7 +59,7 @@ def parse_args(args):
             assert False, "Unhandled option"
 
 
-def acquire_image(camera):
+def acquire_image():
 
     # Acquire image from camera
 
