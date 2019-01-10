@@ -1,11 +1,14 @@
 #!/usr/bin/python
 
 import sys, getopt
+import time
 
 import torch
 
 import picamera
 import picamera.array
+
+from PIL import Image
 
 from threading import Thread, Event
 
@@ -13,11 +16,17 @@ import numpy as np
 
 import socketio
 
+import h5py
+
 DEFAULT_IP_ADDRESS = "http://localhost:3000"
+CAMERA_RESOLUTION = (200, 66)
 
 verbose = False
 manual_mode=False
 socket_address = DEFAULT_IP_ADDRESS
+train = False
+commands = []
+images = []
 
 direction = 0
 speed = 0
@@ -25,6 +34,8 @@ speed = 0
 start = Event()
 stop = Event()
 image_acquired = Event()
+record = Event()
+record.set()
 
 last_image = None
 
@@ -36,10 +47,10 @@ def print_help():
 
 def parse_args(args):
 
-    global verbose, socket_address, manual_mode
+    global verbose, socket_address, manual_mode, to_hdf5
 
     try:
-        opts, args = getopt.getopt(args, "a:hv")
+        opts, args = getopt.getopt(args, "a:hvmt")
     except getopt.GetoptError as err:
         print(str(err))
         print_help()
@@ -55,6 +66,8 @@ def parse_args(args):
             socket_address = a
         elif o in ("-m", "--manual"):
             manual_mode=True
+        elif o in ("-t", "--train"):
+            train=True
         else:
             assert False, "Unhandled option"
 
@@ -63,23 +76,31 @@ def acquire_image():
 
     # Acquire image from camera
 
-    global last_image
+    global last_image, direction, speed, commands, images
     i = 0
 
-    with picamera.PiCamera() as camera:
-        while True:
-            with picamera.array.PiRGBArray(camera) as output:
-                camera.resolution = (200, 66)
-                camera.capture(output, 'rgb')
-                while(image_acquired.is_set()):
-                    # Wait until last image has been processed to save it
-                    pass
-                last_image = output
-                filename = str(i)+".png"
-                last_image.save(filename)
-                verbose_print(filename, " saved to drive.")
-                i += 1
-                image_acquired.set()
+    camera = picamera.PiCamera(framerate=60)
+    camera.resolution = CAMERA_RESOLUTION
+    output = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
+    stream = camera.capture_continuous(output, format="rgb", use_video_port=True)
+
+    for f in stream:
+        while(image_acquired.is_set()):
+            pass
+        last_image = output
+        image_acquired.set()
+        # filename = str(i)+".png"
+        # img_arr = f.array
+        # img = Image.fromarray(img_arr)
+        # img.save(filename)
+        # verbose_print(filename, " saved to drive.")
+        verbose_print("Image acquired : ", i)
+        i += 1
+        output.truncate(0)
+        if record.is_set():
+            images.append(last_image.array)
+            print(images[-1])
+            commands.append({direction: direction, speed: speed})
 
 def receive_commands():
 
@@ -109,6 +130,14 @@ def receive_commands():
     def set_max_speed(speed):
         max_speed = speed
         print("Setting max speed to ", max_speed)
+
+    @socket.on('start_record')
+    def start_record():
+        record.set()
+
+    @socket.on('stop_record')
+    def stop_record():
+        record.clear()
 
     try:
         socket.connect(socket_address)
@@ -143,6 +172,7 @@ def autopilot():
         if not stop.is_set():
             # Drive the car
             image_acquired.wait()
+            print("Driving the car")
             #Process image then clear the event to go on to next image
             image_acquired.clear()
             pass
@@ -152,6 +182,20 @@ def autopilot():
             start.clear()
             stop.clear()
             print("Restarting the car.")
+
+def save_hdf5():
+
+    global commands, images
+
+    filename = time.strftime("%Y%m%d-%H%M%S") + ".h5"
+
+    hf = hdf5.File(filename, 'w')
+
+    images_np = np.array(images)
+    
+    hf.create_dataset('images', data = images_np)
+
+    hf.close()
 
 def manualpilot():
     print("Starting manual pilot")
@@ -164,10 +208,11 @@ def manualpilot():
     while True:
         if not stop.is_set():
             # Drive the car
-
+            print("Driving in manual mode")
             pass
         else:
             print("Stopping the car.")
+            save_hdf5()
             start.wait()
             start.clear()
             stop.clear()
