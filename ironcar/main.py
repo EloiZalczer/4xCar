@@ -105,7 +105,11 @@ def receive_commands():
         max_speed = speed
         print("Setting max speed to ", max_speed)
 
-    socket.connect(socket_address)
+    try:
+        socket.connect(socket_address)
+    except socketio.exceptions.ConnectionError:
+        print("Could not connect to server. Exiting.")
+	# sys.exit()
 
     socket.wait()
 
