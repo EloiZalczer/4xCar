@@ -35,6 +35,7 @@ start = Event()
 stop = Event()
 image_acquired = Event()
 record = Event()
+record.set()
 
 last_image = None
 
@@ -207,7 +208,9 @@ def manualpilot():
     while True:
         if not stop.is_set():
             # Drive the car
+            image_acquired.wait()
             print("Driving in manual mode")
+            image_acquired.clear()
             pass
         else:
             print("Stopping the car.")
