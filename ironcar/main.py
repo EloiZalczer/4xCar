@@ -64,6 +64,7 @@ def acquire_image():
     # Acquire image from camera
 
     global last_image
+    i = 0
 
     with picamera.PiCamera() as camera:
         while True:
@@ -74,6 +75,10 @@ def acquire_image():
                     # Wait until last image has been processed to save it
                     pass
                 last_image = output
+                filename = str(i)+".png"
+                last_image.save(filename)
+                verbose_print(filename, " saved to drive.")
+                i += 1
                 image_acquired.set()
 
 def receive_commands():
@@ -109,12 +114,11 @@ def receive_commands():
         socket.connect(socket_address)
     except socketio.exceptions.ConnectionError:
         print("Could not connect to server. Exiting.")
-	# sys.exit()
+        # sys.exit()
 
     socket.wait()
 
 def launch_threads():
-
     verbose_print("Creating separate thread for image acquisition...")
     camera_thread = Thread(target=acquire_image, args=())
     camera_thread.start()
