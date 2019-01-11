@@ -96,11 +96,12 @@ def acquire_image():
         # verbose_print(filename, " saved to drive.")
         verbose_print("Image acquired : ", i)
         i += 1
+        direction = i
         output.truncate(0)
         if record.is_set():
             images.append(last_image.array)
-            print(images[-1])
-            commands.append({direction: direction, speed: speed})
+            print("Direction : ", direction, " speed : ", speed)
+            commands.append((direction, speed))
 
 def receive_commands():
 
@@ -145,8 +146,6 @@ def receive_commands():
         print("Could not connect to server. Exiting.")
         # sys.exit()
 
-    socket.wait()
-
 def launch_threads():
     verbose_print("Creating separate thread for image acquisition...")
     camera_thread = Thread(target=acquire_image, args=())
@@ -187,13 +186,15 @@ def save_hdf5():
 
     global commands, images
 
-    filename = time.strftime("%Y%m%d-%H%M%S") + ".h5"
+    filename = time.strftime("%Y%m%d%H%M%S") + ".h5"
 
     hf = h5py.File(filename, 'w')
 
     images_np = np.array(images)
+    commands_np = np.array(commands)
     
     hf.create_dataset('images', data = images_np)
+    hf.create_dataset('commands', data = commands_np)
 
     hf.close()
 
@@ -208,6 +209,7 @@ def manualpilot():
     while True:
         if not stop.is_set():
             # Drive the car
+            print("Direction received : ", direction, " speed : ", speed)
             image_acquired.wait()
             print("Driving in manual mode")
             image_acquired.clear()
