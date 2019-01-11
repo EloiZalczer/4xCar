@@ -96,23 +96,22 @@ def acquire_image():
         # verbose_print(filename, " saved to drive.")
         verbose_print("Image acquired : ", i)
         i += 1
-        direction = i
         output.truncate(0)
         if record.is_set():
             images.append(last_image.array)
-            print("Direction : ", direction, " speed : ", speed)
             commands.append((direction, speed))
 
 def receive_commands():
 
     # Receive commands through websockets
 
-    global direction, speed, max_speed
-
     socket = socketio.Client()
 
     @socket.on('command')
     def parse_command(command):
+
+        global direction, speed
+        
         verbose_print("Command received : ", command)
         direction = command['direction']
         speed = command['speed']
@@ -129,6 +128,9 @@ def receive_commands():
 
     @socket.on('max_speed')
     def set_max_speed(speed):
+
+        global max_speed
+        
         max_speed = speed
         print("Setting max speed to ", max_speed)
 
@@ -146,15 +148,10 @@ def receive_commands():
         print("Could not connect to server. Exiting.")
         # sys.exit()
 
-def launch_threads():
+def start_camera():
     verbose_print("Creating separate thread for image acquisition...")
     camera_thread = Thread(target=acquire_image, args=())
     camera_thread.start()
-    verbose_print("Started")
-
-    verbose_print("Creating separate thread for commands reception...")
-    commands_thread = Thread(target=receive_commands, args=())
-    commands_thread.start()
     verbose_print("Started")
 
 def autopilot():
@@ -209,7 +206,6 @@ def manualpilot():
     while True:
         if not stop.is_set():
             # Drive the car
-            print("Direction received : ", direction, " speed : ", speed)
             image_acquired.wait()
             print("Driving in manual mode")
             image_acquired.clear()
@@ -233,7 +229,9 @@ if __name__ == '__main__':
 
     verbose_print("Using IP address ", socket_address)
 
-    launch_threads()
+    start_camera()
+
+    receive_commands()
 
     print("System ready. Waiting for start.")
     # Wait for start command

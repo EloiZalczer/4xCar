@@ -52,7 +52,7 @@ def read_hdf5(filename):
     for i in range(len(images_np)):
         if commands_np[i][0] != 0:
             plt.figure()
-            plt.imshow(images_np[i])
+            plt.imshow(images_np[i]) 
             plt.show()
             print("Direction : ", commands_np[i][0], " speed : ", commands_np[i][1])
 
