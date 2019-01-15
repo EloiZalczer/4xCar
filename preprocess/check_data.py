@@ -3,11 +3,25 @@
 import sys, getopt, os
 import numpy as np
 from matplotlib import pyplot as plt
+from enum import Enum
 
 import h5py
 
 use_most_recent = True
 filename = None
+
+class Direction(Enum):
+    STOP = 0
+    FULL_AHEAD = 1
+    FULL_RIGHT = 2
+    FULL_LEFT = 3
+    HALF_RIGHT = 4
+    HALF_LEFT = 5
+
+class Speed(Enum):
+    STOP = 1
+    HALF_SPEED = 2
+    FULL_SPEED = 3
 
 def parse_args(args):
 
@@ -50,11 +64,13 @@ def read_hdf5(filename):
     commands_np = np.array(commands)
 
     for i in range(len(images_np)):
-        if commands_np[i][0] != 0:
+        direction = Direction(commands_np[i][0])
+        speed = Speed(commands_np[i][1])
+        if speed is not Speed.STOP:
             plt.figure()
             plt.imshow(images_np[i]) 
             plt.show()
-            print("Direction : ", commands_np[i][0], " speed : ", commands_np[i][1])
+            print("Direction : ", direction, " speed: ", speed)
 
 if __name__ == "__main__":
     parse_args(sys.argv[1:])

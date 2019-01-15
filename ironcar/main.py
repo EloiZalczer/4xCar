@@ -23,12 +23,17 @@ import h5py
 DEFAULT_IP_ADDRESS = "http://localhost:3000"
 CAMERA_RESOLUTION = (200, 66)
 
-class Command(Enum):
+class Direction(Enum):
     FULL_AHEAD = 1
     FULL_RIGHT = 2
     FULL_LEFT = 3
     HALF_RIGHT = 4
     HALF_LEFT = 5
+
+class Speed(Enum):
+    STOP = 1
+    HALF_SPEED = 2
+    FULL_SPEED = 3
 
 verbose = False
 manual_mode=False
@@ -36,7 +41,8 @@ socket_address = DEFAULT_IP_ADDRESS
 train = False
 commands = []
 images = []
-command = None
+direction = Direction.FULL_AHEAD
+speed = Speed.STOP
 
 start = Event()
 stop = Event()
@@ -83,7 +89,7 @@ def acquire_image():
 
     # Acquire image from camera
 
-    global last_image, command, commands, images
+    global last_image, direction, speed, commands, images
     i = 0
 
     camera = picamera.PiCamera(framerate=60)
@@ -106,21 +112,26 @@ def acquire_image():
         output.truncate(0)
         if record.is_set():
             images.append(last_image.array)
-            print("Command : ", command)
-            commands.append(command)
+            print("Direction : ", direction, " speed : ", speed)
+            commands.append((direction.value, speed.value))
 
-def round_command(command):
-    if command['direction'] < -5:
-        if command['direction'] < -20:
-            return Command.FULL_LEFT
-        else:
-            return Command.HALF_LEFT
-    elif command['direction'] > 5:
-        if command['direction'] > 20:
-            return Command.FULL_RIGHT
-        else:
-            return Command.FULL_RIGHT
-    return Command.FULL_AHEAD
+def round_direction(direction):
+    if direction < -5:
+        if direction < -20:
+            return Direction.FULL_LEFT
+        return Direction.HALF_LEFT
+    elif direction > 5:
+        if direction > 20:
+            return Direction.FULL_RIGHT
+        return Direction.HALF_RIGHT
+    return Direction.FULL_AHEAD
+
+def round_speed(speed):
+    if speed > 5:
+        if speed > 20:
+            return Speed.FULL_SPEED
+        return Speed.HALF_SPEED
+    return Speed.STOP
 
 def receive_commands():
 
@@ -129,12 +140,12 @@ def receive_commands():
     socket = socketio.Client()
 
     @socket.on('command')
-    def parse_command(c):
+    def parse_command(command):
 
-        global command
-        
-        verbose_print("Command received : ", c)
-        command = round_command(c)
+        global direction, speed
+        verbose_print("Command received : ", command)
+        direction = round_direction(command['direction'])
+        speed = round_speed(command['speed'])
 
     @socket.on('start')
     def start_car():
