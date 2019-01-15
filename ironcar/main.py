@@ -8,6 +8,8 @@ import torch
 import picamera
 import picamera.array
 
+from enum import Enum
+
 from PIL import Image
 
 from threading import Thread, Event
@@ -21,15 +23,20 @@ import h5py
 DEFAULT_IP_ADDRESS = "http://localhost:3000"
 CAMERA_RESOLUTION = (200, 66)
 
+class Command(Enum):
+    FULL_AHEAD = 1
+    FULL_RIGHT = 2
+    FULL_LEFT = 3
+    HALF_RIGHT = 4
+    HALF_LEFT = 5
+
 verbose = False
 manual_mode=False
 socket_address = DEFAULT_IP_ADDRESS
 train = False
 commands = []
 images = []
-
-direction = 0
-speed = 0
+command = None
 
 start = Event()
 stop = Event()
@@ -76,7 +83,7 @@ def acquire_image():
 
     # Acquire image from camera
 
-    global last_image, direction, speed, commands, images
+    global last_image, command, commands, images
     i = 0
 
     camera = picamera.PiCamera(framerate=60)
@@ -99,7 +106,21 @@ def acquire_image():
         output.truncate(0)
         if record.is_set():
             images.append(last_image.array)
-            commands.append((direction, speed))
+            print("Command : ", command)
+            commands.append(command)
+
+def round_command(command):
+    if command['direction'] < -5:
+        if command['direction'] < -20:
+            return Command.FULL_LEFT
+        else:
+            return Command.HALF_LEFT
+    elif command['direction'] > 5:
+        if command['direction'] > 20:
+            return Command.FULL_RIGHT
+        else:
+            return Command.FULL_RIGHT
+    return Command.FULL_AHEAD
 
 def receive_commands():
 
@@ -108,13 +129,12 @@ def receive_commands():
     socket = socketio.Client()
 
     @socket.on('command')
-    def parse_command(command):
+    def parse_command(c):
 
-        global direction, speed
+        global command
         
-        verbose_print("Command received : ", command)
-        direction = command['direction']
-        speed = command['speed']
+        verbose_print("Command received : ", c)
+        command = round_command(c)
 
     @socket.on('start')
     def start_car():
