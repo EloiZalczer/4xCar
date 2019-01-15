@@ -85,7 +85,7 @@ def acquire_image():
     stream = camera.capture_continuous(output, format="rgb", use_video_port=True)
 
     for f in stream:
-        while(image_acquired.is_set()):
+        while image_acquired.is_set():
             pass
         last_image = output
         image_acquired.set()
@@ -166,10 +166,11 @@ def autopilot():
 
     while True:
         if not stop.is_set():
-            # Drive the car
             image_acquired.wait()
+            # Drive the car
             print("Driving the car")
             #Process image then clear the event to go on to next image
+
             image_acquired.clear()
             pass
         else:
@@ -182,6 +183,9 @@ def autopilot():
 def save_hdf5():
 
     global commands, images
+
+    if len(commands) == 0:
+        return
 
     filename = time.strftime("%Y%m%d%H%M%S") + ".h5"
 

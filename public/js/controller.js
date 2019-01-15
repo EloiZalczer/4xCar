@@ -32,8 +32,8 @@ window.onload = function(){
 	canvas.onmousemove = function(evt){
 		if(mousedown){
 			coord = getMousePos(evt);
-			command.direction = coord.x*(60/width) - 30
-			command.speed = 30 - coord.y*(30/height)
+			command.direction = Math.round(coord.x*(60/width) - 30)
+			command.speed = Math.round(30 - coord.y*(30/height))
 			displayBall(coord);
 		}
 	}
@@ -62,8 +62,8 @@ function setRecordButtonTextAndColor(value, color){
 }
 
 function displayCurrentSpeedAndDirection(speed, direction){
-	document.getElementById("speed_value").innerHTML = speed.toPrecision(5);
-	document.getElementById("direction_value").innerHTML = direction.toPrecision(5);
+	document.getElementById("speed_value").innerHTML = speed;
+	document.getElementById("direction_value").innerHTML = direction;
 } 
 
 function stopstart(){

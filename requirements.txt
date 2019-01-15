@@ -1,0 +1,7 @@
+numpy
+picamera
+PIL
+socketio
+h5py
+
+pytorch >= 4.0.0
