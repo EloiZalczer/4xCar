@@ -18,15 +18,20 @@ import socketio
 
 import h5py
 
+import serial
+
 DEFAULT_IP_ADDRESS = "http://localhost:3000"
+DEFAULT_SERIAL_ADDRESS = "/dev/ttyACM0"
 CAMERA_RESOLUTION = (200, 66)
 
 verbose = False
 manual_mode=False
 socket_address = DEFAULT_IP_ADDRESS
+serial_address = DEFAULT_SERIAL_ADDRESS
 train = False
 commands = []
 images = []
+ser = None
 
 direction = 0
 speed = 0
@@ -68,9 +73,10 @@ def parse_args(args):
             manual_mode=True
         elif o in ("-t", "--train"):
             train=True
+        elif o in ("-s", "--serial"):
+            serial_address = a
         else:
             assert False, "Unhandled option"
-
 
 def acquire_image():
 
@@ -115,6 +121,9 @@ def receive_commands():
         verbose_print("Command received : ", command)
         direction = command['direction']
         speed = command['speed']
+        ser.write(bytes([direction]))
+        ser.write(bytes([speed]))
+        ser.write(bytes(['\n']))
 
     @socket.on('start')
     def start_car():
@@ -236,6 +245,8 @@ if __name__ == '__main__':
     start_camera()
 
     receive_commands()
+
+    ser = serial.Serial(serial_address)
 
     print("System ready. Waiting for start.")
     # Wait for start command
