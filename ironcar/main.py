@@ -186,7 +186,7 @@ def autopilot():
             image_acquired.wait()
             # Drive the car
             print("Driving the car")
-            #Process image then clear the event to go on to next image
+            # Process image then clear the event to go on to next image
             input = TF.to_tensor(last_image.array)
             
             output = model(input.unsqueeze_(0))

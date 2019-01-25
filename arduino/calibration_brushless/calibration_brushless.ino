@@ -1,6 +1,9 @@
 #include <Servo.h>
 
 Servo brushless;
+int mode = 0;
+boolean sent = false;
+
 
 void setup(){
   Serial.begin(9600);
@@ -8,16 +11,30 @@ void setup(){
 }
 
 void loop(){
-  
-  for (int position = 0; position <= 180; position+=1){
-    brushless.write(position);
-    delay(100);
-    Serial.println(position);
+  if(!sent){
+    if(mode == 1){
+      brushless.write(90);
+      Serial.println("Neutral point");
+    }
+    else if(mode == 2){
+      brushless.write(180);
+      Serial.println("Full throttle");
+    }
+    else if(mode == 3){
+      brushless.write(0);
+      Serial.println("Full brake");
+    }
+    sent = true;
   }
-  
-  for(int position = 180; position >=0; position -=1){
-    brushless.write(position);
-    delay(100);
-    Serial.println(position);
+}
+
+void serialEvent(){
+  while(Serial.available()){
+    char inChar = (char)Serial.read();
+    
+    if(inChar = '1'){
+      mode++;
+      sent=false;
+    }
   }
 }
