@@ -52,10 +52,10 @@ def print_help():
 
 def parse_args(args):
 
-    global verbose, socket_address, manual_mode, to_hdf5
+    global verbose, serial_address, socket_address, manual_mode, to_hdf5
 
     try:
-        opts, args = getopt.getopt(args, "a:hvmt")
+        opts, args = getopt.getopt(args, "a:s:hvmt")
     except getopt.GetoptError as err:
         print(str(err))
         print_help()
@@ -121,9 +121,7 @@ def receive_commands():
         verbose_print("Command received : ", command)
         direction = command['direction']
         speed = command['speed']
-        ser.write(bytes([direction]))
-        ser.write(bytes([speed]))
-        ser.write(bytes(['\n']))
+        ser.write(bytes([direction+90, speed+90, 0]))
 
     @socket.on('start')
     def start_car():
@@ -155,7 +153,7 @@ def receive_commands():
         socket.connect(socket_address)
     except socketio.exceptions.ConnectionError:
         print("Could not connect to server. Exiting.")
-        # sys.exit()
+        sys.exit()
 
 def start_camera():
     verbose_print("Creating separate thread for image acquisition...")
@@ -246,7 +244,7 @@ if __name__ == '__main__':
 
     receive_commands()
 
-    ser = serial.Serial(serial_address)
+    ser = serial.Serial(serial_address, baudrate=115200, timeout=0)
 
     print("System ready. Waiting for start.")
     # Wait for start command
