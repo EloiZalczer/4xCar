@@ -171,6 +171,12 @@ def autopilot():
     start.wait()
     start.clear()
 
+    global direction, speed
+
+    verbose_print("Loading model")
+    model = torch.load("models/model.pth", map_location=torch.device("cpu"))
+    model.eval()
+
     print("Starting the car.")
 
     while True:
@@ -179,6 +185,13 @@ def autopilot():
             # Drive the car
             print("Driving the car")
             #Process image then clear the event to go on to next image
+            direction = model(last_image)
+
+            verbose_print("Command from network : ", direction)
+            speed = 1
+            ser.write(bytes([direction]))
+            ser.write(bytes([speed]))
+            ser.write(bytes(['\n']))
 
             image_acquired.clear()
             pass
@@ -217,13 +230,7 @@ def manualpilot():
     print("Starting the car.")
 
     while True:
-        if not stop.is_set():
-            # Drive the car
-            image_acquired.wait()
-            print("Driving in manual mode")
-            image_acquired.clear()
-            pass
-        else:
+        if stop.is_set():
             print("Stopping the car.")
             save_hdf5()
             start.wait()
