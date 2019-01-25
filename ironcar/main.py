@@ -8,6 +8,8 @@ import torch
 import picamera
 import picamera.array
 
+from models.autopilot import DeepPicar
+
 from PIL import Image
 
 from threading import Thread, Event
@@ -155,7 +157,7 @@ def receive_commands():
         socket.connect(socket_address)
     except socketio.exceptions.ConnectionError:
         print("Could not connect to server. Exiting.")
-        # sys.exit()
+        sys.exit()
 
 def start_camera():
     verbose_print("Creating separate thread for image acquisition...")
@@ -174,7 +176,8 @@ def autopilot():
     global direction, speed
 
     verbose_print("Loading model")
-    model = torch.load("models/model.pth", map_location=torch.device("cpu"))
+    model = DeepPicar()
+    model.load_state_dict(torch.load("models/model.pth", map_location=torch.device("cpu")))
     model.eval()
 
     print("Starting the car.")
