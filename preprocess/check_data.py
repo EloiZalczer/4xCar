@@ -17,7 +17,6 @@ def parse_args(args):
         opts, args = getopt.getopt(args, "i:")
     except getopt.GetoptError as err:
         print(str(err))
-        print_help()
         sys.exit()
 
     for o, a in opts:
@@ -30,7 +29,7 @@ def parse_args(args):
 def get_most_recent_filename():
     most_recent_date = 0
     most_recent_file = ""
-    for filename in os.listdir(path='/home/pi/Documents/PFE/IronCar/'):
+    for filename in os.listdir(path='/home/eloi/Documents/PFE/'):
             print("Filename : ", filename)
             if ".h5" in filename:
                 date = int(filename.split('.')[0])
@@ -47,14 +46,15 @@ def read_hdf5(filename):
     commands = hf.get('commands')
 
     images_np = np.array(images)
+    print(len(images_np))
     commands_np = np.array(commands)
 
-    for i in range(len(images_np)):
-        if commands_np[i][0] != 0:
-            plt.figure()
-            plt.imshow(images_np[i]) 
-            plt.show()
-            print("Direction : ", commands_np[i][0], " speed : ", commands_np[i][1])
+    for i in range(700, len(images_np)):
+        #if commands_np[i][0] != 0:
+        plt.figure()
+        plt.imshow(images_np[i])
+        plt.show()
+        print("Direction : ", commands_np[i][0], " speed : ", commands_np[i][1])
 
 if __name__ == "__main__":
     parse_args(sys.argv[1:])

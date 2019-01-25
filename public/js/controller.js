@@ -1,4 +1,3 @@
-
 var mousedown = false;
 var canvas, ctx;
 var height, width;
@@ -17,7 +16,7 @@ window.onload = function(){
 
 	ctx = canvas.getContext('2d');
 
-	resetBall();
+	initBall();
 	connect();
 
 	canvas.onmousedown = function(){
@@ -32,9 +31,14 @@ window.onload = function(){
 	canvas.onmousemove = function(evt){
 		if(mousedown){
 			coord = getMousePos(evt);
-			command.direction = Math.round(coord.x*(60/width) - 30)
-			command.speed = Math.round(30 - coord.y*(30/height))
+			prev_direction = command.direction;
+			prev_speed = command.speed;
+			command.direction = - Math.round(coord.x*(60/width) - 30);
+			command.speed = Math.round(30 - coord.y*(30/height));
 			displayBall(coord);
+			if(running && (prev_direction != command.direction || prev_speed != command.speed)){
+				sendData();
+			}
 		}
 	}
 }
@@ -110,7 +114,6 @@ function sendStart(){
 	if(connected){
 		console.log("Sending start command");
 		socket.emit('start');
-		periodicSend = setInterval(sendData, 20);
 	}
 }
 
@@ -130,14 +133,20 @@ function sendMaxSpeed(){
 
 function sendData(){
 	console.log("Sending data : "+command);
-	displayCurrentSpeedAndDirection(command.speed, command.direction);
 	socket.emit('command', command);
 }
 
 function resetBall(){
-	displayBall({x: width/2, y: height});
 	command.direction = 0;
 	command.speed = 0;
+	sendData();
+	displayBall({x: width/2, y: height});
+}
+
+function initBall(){
+	command.direction = 0;
+	command.speed = 0;
+	displayBall({x: width/2, y: height});
 }
 
 function displayBall(coord){
@@ -148,6 +157,7 @@ function displayBall(coord){
 	ctx.arc(coord.x, coord.y, 50, 0, 2*Math.PI);
 	ctx.fill();
 	ctx.stroke();
+	displayCurrentSpeedAndDirection(command.speed, command.direction);
 }
 
 function  getMousePos(evt) {
