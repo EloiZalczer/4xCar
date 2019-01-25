@@ -6,12 +6,8 @@ import time
 import torch
 import torchvision.transforms.functional as TF
 
-import picamera
-import picamera.array
-
 from models.autopilot import DeepPicar
-
-from PIL import Image
+from camera import PiVideoStream
 
 from threading import Thread, Event
 
@@ -25,13 +21,12 @@ import serial
 
 DEFAULT_IP_ADDRESS = "http://localhost:3000"
 DEFAULT_SERIAL_ADDRESS = "/dev/ttyACM0"
-CAMERA_RESOLUTION = (200, 66)
 
 verbose = False
 manual_mode=False
 socket_address = DEFAULT_IP_ADDRESS
 serial_address = DEFAULT_SERIAL_ADDRESS
-train = False
+
 commands = []
 images = []
 ser = None
@@ -41,11 +36,7 @@ speed = 0
 
 start = Event()
 stop = Event()
-image_acquired = Event()
 record = Event()
-record.set()
-
-last_image = None
 
 # Define function for verbose output
 # verbose_print = None
@@ -80,35 +71,6 @@ def parse_args(args):
             serial_address = a
         else:
             assert False, "Unhandled option"
-
-def acquire_image():
-
-    # Acquire image from camera
-
-    global last_image, direction, speed, commands, images
-    i = 0
-
-    camera = picamera.PiCamera(framerate=60)
-    camera.resolution = CAMERA_RESOLUTION
-    output = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
-    stream = camera.capture_continuous(output, format="rgb", use_video_port=True)
-
-    for f in stream:
-        while image_acquired.is_set():
-            pass
-        last_image = output
-        image_acquired.set()
-        # filename = str(i)+".png"
-        # img_arr = f.array
-        # img = Image.fromarray(img_arr)
-        # img.save(filename)
-        # verbose_print(filename, " saved to drive.")
-        verbose_print("Image acquired : ", i)
-        i += 1
-        output.truncate(0)
-        if record.is_set():
-            images.append(last_image.array)
-            commands.append((direction, speed))
 
 def receive_commands():
 
@@ -158,12 +120,6 @@ def receive_commands():
         print("Could not connect to server. Exiting.")
         sys.exit()
 
-def start_camera():
-    verbose_print("Creating separate thread for image acquisition...")
-    camera_thread = Thread(target=acquire_image, args=())
-    camera_thread.start()
-    verbose_print("Started")
-
 def autopilot():
     # Auto pilot using pre-trained model
 
@@ -183,20 +139,16 @@ def autopilot():
 
     while True:
         if not stop.is_set():
-            image_acquired.wait()
-            # Drive the car
-            print("Driving the car")
-            # Process image then clear the event to go on to next image
-            input = TF.to_tensor(last_image.array)
+
+            input = camera.read()
             
-            output = model(input.unsqueeze_(0))
+            output = model(input)
             direction = int(np.round(output.data.numpy()*30))
 
             verbose_print("Command from network : ", direction)
             speed = 1
             ser.write(bytes([direction+90, speed+90, 0]))
 
-            image_acquired.clear()
             pass
         else:
             print("Stopping the car.")
@@ -240,6 +192,10 @@ def manualpilot():
             start.clear()
             stop.clear()
             print("Restarting the car.")
+        else:
+            if (record.is_set()):
+                images.append(camera.read())
+                commands.append((direction, speed))
 
 if __name__ == '__main__':
     parse_args(sys.argv[1:])
@@ -252,7 +208,8 @@ if __name__ == '__main__':
 
     verbose_print("Using IP address ", socket_address)
 
-    start_camera()
+    camera = PiVideoStream()
+    camera.start()
 
     receive_commands()
 
