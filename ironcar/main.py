@@ -4,6 +4,7 @@ import sys, getopt
 import time
 
 import torch
+import torchvision.transforms.functional as TF
 
 import picamera
 import picamera.array
@@ -175,7 +176,7 @@ def autopilot():
 
     verbose_print("Loading model")
     model = DeepPicar()
-    model.load_state_dict(torch.load("models/model.pth", map_location=torch.device("cpu")))
+    model.load_state_dict(torch.load("ironcar/models/model.pth", map_location=torch.device("cpu")))
     model.eval()
 
     print("Starting the car.")
@@ -186,13 +187,14 @@ def autopilot():
             # Drive the car
             print("Driving the car")
             #Process image then clear the event to go on to next image
-            direction = model(last_image)
+            input = TF.to_tensor(last_image.array)
+            
+            output = model(input.unsqueeze_(0))
+            direction = int(np.round(output.data.numpy()*30))
 
             verbose_print("Command from network : ", direction)
             speed = 1
-            ser.write(bytes([direction]))
-            ser.write(bytes([speed]))
-            ser.write(bytes(['\n']))
+            ser.write(bytes([direction+90, speed+90, 0]))
 
             image_acquired.clear()
             pass
