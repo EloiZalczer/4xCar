@@ -1,8 +1,7 @@
 import picamera
 import picamera.array
 
-import torch
-import torchvision.transforms.functional as TF
+import numpy as np
 
 from threading import Thread, Event
 
@@ -30,7 +29,7 @@ class PiVideoStream:
         for f in self.stream:
             # grab the frame from the stream and clear the stream in
             # preparation for the next frame
-            self.frame = TF.to_tensor(f.array).unsqueeze_(0)
+            self.frame = np.expand_dims(f.array, axis=0)
             self.rawCapture.truncate(0)
 
             # if the thread indicator variable is set, stop the thread

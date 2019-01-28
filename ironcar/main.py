@@ -3,11 +3,12 @@
 import sys, getopt
 import time
 
-from models.autopilot import DeepPicar
 from camera import PiVideoStream
 
 from tensorflow import get_default_graph
 from keras.models import load_model
+from keras.utils import CustomObjectScope
+from keras.initializers import glorot_uniform
 
 from threading import Thread, Event
 
@@ -132,7 +133,8 @@ def autopilot():
 
     verbose_print("Loading model")
 
-    model = load_model('models/keras_model.h5')
+    with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
+        model = load_model('ironcar/models/keras_model.h5')
     graph = get_default_graph()
 
     print("Starting the car.")
@@ -145,7 +147,8 @@ def autopilot():
             with graph.as_default():
                 pred = model.predict(input)
 
-            direction = int(np.round(pred*30))
+            print(pred[0])
+            direction = int(np.round(pred[0][0]*30))
 
             verbose_print("Command from network : ", direction)
             speed = 1
