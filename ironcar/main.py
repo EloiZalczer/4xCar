@@ -3,11 +3,11 @@
 import sys, getopt
 import time
 
-import torch
-import torchvision.transforms.functional as TF
-
 from models.autopilot import DeepPicar
 from camera import PiVideoStream
+
+from tensorflow import get_default_graph
+from keras.models import load_model
 
 from threading import Thread, Event
 
@@ -131,9 +131,9 @@ def autopilot():
     global direction, speed
 
     verbose_print("Loading model")
-    model = DeepPicar()
-    model.load_state_dict(torch.load("ironcar/models/model.pth", map_location=torch.device("cpu")))
-    model.eval()
+
+    model = load_model('models/keras_model.h5')
+    graph = get_default_graph()
 
     print("Starting the car.")
 
@@ -141,9 +141,11 @@ def autopilot():
         if not stop.is_set():
 
             input = camera.read()
-            
-            output = model(input)
-            direction = int(np.round(output.data.numpy()*30))
+
+            with graph.as_default():
+                pred = model.predict(input)
+
+            direction = int(np.round(pred*30))
 
             verbose_print("Command from network : ", direction)
             speed = 1
