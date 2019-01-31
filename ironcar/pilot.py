@@ -108,7 +108,7 @@ class AutoPilot(Pilot):
 
                 start_time = time.time()
 
-                input = self.camera.read()
+                input = self.camera.read_processed()
 
                 with self.graph.as_default():
                     pred = self.model.predict(input)
@@ -133,10 +133,12 @@ class ManualPilot(Pilot):
     def __init__(self, verbose_print, serial_address, socket_address, max_speed=30):
         super().__init__(verbose_print, serial_address, socket_address, max_speed)
         self.recording = False
+        self.running = False
         self.commands = []
         self.images = []
         self.direction = 0
         self.speed = 0
+        self.camera.start()
 
     def start(self):
         print("Starting manual pilot")
@@ -149,7 +151,7 @@ class ManualPilot(Pilot):
 
         @self.socket.on('command')
         def parse_command(command):
-            if self.startEvent.is_set():
+            if self.running:
                 self.verbose_print("Command received : ", command)
                 self.direction = command['direction']
                 self.speed = command['speed']
@@ -159,11 +161,13 @@ class ManualPilot(Pilot):
         def start_car():
             print("Start signal received.")
             self.startEvent.set()
+            self.running = True
 
         @self.socket.on('stop')
         def stop_car():
             print("Stop signal received.")
             self.stopEvent.set()
+            self.running = False
 
         @self.socket.on('max_speed')
         def set_max_speed(speed):
@@ -203,8 +207,8 @@ class ManualPilot(Pilot):
             else:
                 if self.recording:
                     self.images.append(self.camera.read())
-                    self.verbose_print(self.direction)
                     self.commands.append((self.direction, self.speed))
+                    time.sleep(.05)
 
     def save_hdf5(self):
 
@@ -212,6 +216,8 @@ class ManualPilot(Pilot):
             return
 
         filename = time.strftime("%Y%m%d%H%M%S") + ".h5"
+
+        self.verbose_print("Saving data to", filename)
 
         hf = h5py.File(filename, 'w')
 
@@ -222,3 +228,5 @@ class ManualPilot(Pilot):
         hf.create_dataset('commands', data=commands_np)
 
         hf.close()
+
+        self.verbose_print("Done")

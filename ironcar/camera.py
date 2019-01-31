@@ -29,7 +29,8 @@ class PiVideoStream:
         for f in self.stream:
             # grab the frame from the stream and clear the stream in
             # preparation for the next frame
-            self.frame = np.expand_dims(f.array, axis=0).astype('float32') / 255
+            self.frame = f.array
+            self.processed_frame = np.expand_dims(f.array, axis=0).astype('float32') / 255
             self.rawCapture.truncate(0)
 
             # if the thread indicator variable is set, stop the thread
@@ -43,6 +44,9 @@ class PiVideoStream:
     def read(self):
         # return the frame most recently read
         return self.frame
+
+    def read_processed(self):
+        return self.processed_frame
 
     def stop(self):
         # indicate that the thread should be stopped
