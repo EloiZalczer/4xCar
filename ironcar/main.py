@@ -5,10 +5,14 @@ import time
 
 from camera import PiVideoStream
 
+import tensorflow as tf
 from tensorflow import get_default_graph
-from keras.models import load_model
-from keras.utils import CustomObjectScope
-from keras.initializers import glorot_uniform
+from tensorflow.python.keras.models import load_model
+from tensorflow.python.keras.utils import CustomObjectScope
+from tensorflow.python.keras.initializers import glorot_uniform
+# from keras.models import load_model
+# from keras.utils import CustomObjectScope
+# from keras.initializers import glorot_uniform
 
 from threading import Thread, Event
 
@@ -134,13 +138,15 @@ def autopilot():
     verbose_print("Loading model")
 
     with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
-        model = load_model('ironcar/models/keras_model.h5')
+        model = load_model('ironcar/models/keras_model_no_preprocess.h5')
     graph = get_default_graph()
 
     print("Starting the car.")
 
     while True:
         if not stop.is_set():
+
+            start_time = time.time()
 
             input = camera.read()
 
@@ -154,7 +160,7 @@ def autopilot():
             speed = 1
             ser.write(bytes([direction+90, speed+90, 0]))
 
-            pass
+            print("Time for one iteration : ", time.time()-start_time)
         else:
             print("Stopping the car.")
             start.wait()
