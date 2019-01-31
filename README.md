@@ -1,4 +1,4 @@
-# Iron Car (TODO trouver un nom)
+# 4xCar (Prononcer quatre-car)
 
 Projet de fin d'études de **Erwan Dufresne** et **Eloi Zalczer**, Polytech Lille IMA 2019.
 
