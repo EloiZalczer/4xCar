@@ -68,3 +68,5 @@ if __name__ == '__main__':
         pilot = AutoPilot(verbose, serial_address, socket_address)
     else:
         pilot = ManualPilot(verbose, serial_address, socket_address)
+
+    pilot.start()

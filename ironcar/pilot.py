@@ -51,7 +51,7 @@ class AutoPilot(Pilot):
     def __init__(self,  verbose_print, serial_address, socket_address, model_path = 'ironcar/models/keras_model_simplified_no_preprocess.h5',
                 max_speed=30):
 
-        super().__init__(self, verbose_print, serial_address, socket_address, max_speed)
+        super().__init__(verbose_print, serial_address, socket_address, max_speed)
         self.model_path = model_path
 
     def start(self):
