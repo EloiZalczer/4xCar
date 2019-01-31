@@ -138,7 +138,7 @@ def autopilot():
     verbose_print("Loading model")
 
     with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
-        model = load_model('ironcar/models/keras_model_no_preprocess.h5')
+        model = load_model('ironcar/models/keras_model_simplified_no_preprocess.h5')
     graph = get_default_graph()
 
     print("Starting the car.")
