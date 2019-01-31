@@ -1,7 +1,9 @@
 numpy
 picamera
-PIL
-socketio
+pillow>=5.0.0
+python-socketio>=3.0.0
+python-engineio>=3.0.0
 h5py
+pyserial>=3.0
 
-pytorch >= 4.0.0
+tensorflow>=1.12.0
