@@ -7,6 +7,7 @@ import sys
 import time
 import serial
 import numpy as np
+import h5py
 
 import tensorflow as tf
 from tensorflow import get_default_graph
@@ -204,3 +205,20 @@ class ManualPilot(Pilot):
                     self.images.append(self.camera.read())
                     self.verbose_print(self.direction)
                     self.commands.append((self.direction, self.speed))
+
+    def save_hdf5(self):
+
+        if len(self.commands) == 0:
+            return
+
+        filename = time.strftime("%Y%m%d%H%M%S") + ".h5"
+
+        hf = h5py.File(filename, 'w')
+
+        images_np = np.array(self.images)
+        commands_np = np.array(self.commands)
+
+        hf.create_dataset('images', data=images_np)
+        hf.create_dataset('commands', data=commands_np)
+
+        hf.close()
