@@ -30,7 +30,7 @@ class PiVideoStream:
         for f in self.stream:
             # grab the frame from the stream and clear the stream in
             # preparation for the next frame
-            self.frame = TF.to_tensor(f.array).unsqueeze_(0)
+            self.frame = TF.normalize(TF.to_tensor(f.array).unsqueeze_(0), (0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
             self.rawCapture.truncate(0)
 
             # if the thread indicator variable is set, stop the thread
