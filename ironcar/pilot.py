@@ -54,6 +54,7 @@ class AutoPilot(Pilot):
 
         super().__init__(verbose_print, serial_address, socket_address, max_speed)
         self.model_path = model_path
+        self.last_direction = 0
 
     def start(self):
 
@@ -113,12 +114,18 @@ class AutoPilot(Pilot):
                 with self.graph.as_default():
                     pred = self.model.predict(input)
 
-                print(pred[0])
+                # Si la direction inferee est trop differente de celle actuelle, on la moyenne avec la precedente pour
+                # limiter les effets des valeurs predictions aberrantes
+
                 direction = int(np.round(pred[0][0] * 30))
+                if direction > self.last_direction+20 or direction < self.last_direction -20:
+                    direction = self.last_direction + direction / 2
 
                 self.verbose_print("Command from network : ", direction)
-                speed = 1
-                self.ser.write(bytes([direction + 90, speed + 90, 0]))
+                self.speed = 1
+                self.ser.write(bytes([direction + 90, self.speed + 90, 0]))
+
+                self.last_direction = direction
 
                 self.verbose_print("Time for one iteration : ", time.time() - start_time)
             else:
