@@ -6,7 +6,7 @@ import numpy as np
 from threading import Thread, Event
 
 class PiVideoStream:
-    def __init__(self, resolution=(200, 66), framerate=20):
+    def __init__(self, resolution=(200, 66), framerate=30):
         # initialize the camera and stream
         self.camera = picamera.PiCamera()
         self.camera.resolution = resolution
