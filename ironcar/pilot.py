@@ -17,6 +17,7 @@ from tensorflow.python.keras.initializers import glorot_uniform
 
 from camera import PiVideoStream
 
+
 class Pilot(ABC):
     def __init__(self, verbose, serial_address, socket_address, max_speed=30):
         super().__init__()
@@ -48,9 +49,11 @@ class Pilot(ABC):
     def mainloop(self):
         pass
 
+
 class AutoPilot(Pilot):
-    def __init__(self,  verbose_print, serial_address, socket_address, model_path = 'ironcar/models/keras_model_simplified_no_preprocess.h5',
-                max_speed=30):
+    def __init__(self,  verbose_print, serial_address, socket_address,
+                 model_path='ironcar/models/keras_model_simplified_no_preprocess.h5',
+                 max_speed=30):
 
         super().__init__(verbose_print, serial_address, socket_address, max_speed)
         self.model_path = model_path
@@ -118,12 +121,12 @@ class AutoPilot(Pilot):
                 # limiter les effets des valeurs predictions aberrantes
 
                 direction = int(np.round(pred[0][0] * 30))
-                if direction > self.last_direction+20 or direction < self.last_direction -20:
+                if direction > self.last_direction+20 or direction < self.last_direction - 20:
                     direction = self.last_direction + direction / 2
 
                 self.verbose_print("Command from network : ", direction)
-                self.speed = 1
-                self.ser.write(bytes([direction + 90, self.speed + 90, 0]))
+                speed = 1
+                self.ser.write(bytes([direction + 90, speed + 90, 0]))
 
                 self.last_direction = direction
 
@@ -135,9 +138,10 @@ class AutoPilot(Pilot):
                 self.stopEvent.clear()
                 print("Restarting the car.")
 
+
 class ManualPilot(Pilot):
 
-    def __init__(self, verbose_print, serial_address, socket_address, max_speed=30):
+    def __init__(self, verbose_print, serial_address, socket_address, framerate=20, max_speed=30):
         super().__init__(verbose_print, serial_address, socket_address, max_speed)
         self.recording = False
         self.running = False
@@ -145,6 +149,7 @@ class ManualPilot(Pilot):
         self.images = []
         self.direction = 0
         self.speed = 0
+        self.framerate = framerate
         self.camera.start()
 
     def start(self):
