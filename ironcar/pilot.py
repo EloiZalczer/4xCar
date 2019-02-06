@@ -118,7 +118,7 @@ class AutoPilot(Pilot):
                     pred = self.model.predict(input)
 
                 # Si la direction inferee est trop differente de celle actuelle, on la moyenne avec la precedente pour
-                # limiter les effets des valeurs predictions aberrantes
+                # limiter les effets des predictions aberrantes
 
                 direction = int(np.round(pred[0][0] * 30))
                 if direction > self.last_direction+20 or direction < self.last_direction - 20:
