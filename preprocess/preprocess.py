@@ -41,14 +41,14 @@ class Preprocessor:
                 self.images_np = filtered_images
                 self.commands_np = commands
 
-        self.data = np.c_[
+        data = np.c_[
             self.images_np.reshape(len(self.images_np), -1), self.commands_np.reshape(len(self.commands_np), -1)].astype("int")
 
         if self.shuffle:
-            np.random.shuffle(self.data)
+            np.random.shuffle(data)
 
-        self.images_np = self.data[:, :self.images_np.size//len(self.images_np)].reshape(self.images_np.shape)
-        self.commands_np = self.data[:, self.images_np.size//len(self.images_np):].reshape(self.commands_np.shape)
+        self.images_np = data[:, :self.images_np.size//len(self.images_np)].reshape(self.images_np.shape)
+        self.commands_np = data[:, self.images_np.size//len(self.images_np):].reshape(self.commands_np.shape)
 
         self.disp_random()
 

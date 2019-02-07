@@ -14,7 +14,7 @@ socket_address = DEFAULT_IP_ADDRESS
 
 
 def print_help():
-    print("Usage : python3.6 main.py [-h|--help] [-v|--verbose] [-a|--address <ip_address>]")
+    print("Usage : python3.6 main.py [-h|--help] [-v|--verbose] [-a|--address <ip_address>] [-m|--manual] [-s|--serial <serial_address>]")
 
 
 def parse_args(args):
