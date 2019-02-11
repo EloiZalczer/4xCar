@@ -4,7 +4,7 @@ import sys, getopt
 
 from pilot import AutoPilot, ManualPilot
 
-DEFAULT_IP_ADDRESS = "http://localhost:3000"
+DEFAULT_IP_ADDRESS = "http://192.168.43.45:3000"
 DEFAULT_SERIAL_ADDRESS = "/dev/ttyACM0"
 
 verbose = False
