@@ -6,12 +6,12 @@ from tqdm import tqdm
 
 import h5py
 
-filenames = ["from_generator_test.h5", "20190211112835.h5"]
+filenames = ["from_generator_test.h5"]
 
 def combine_hdf5():
 
-    combined_images = np.empty(shape=(0, 66, 200, 3))
-    combined_commands = np.empty(shape=(0, 2))
+    combined_images = []
+    combined_commands = []
 
     for filename in filenames:
         hf = h5py.File(filename, 'r')
@@ -22,14 +22,22 @@ def combine_hdf5():
         images_np = np.array(images)
         commands_np = np.array(commands)
 
-        print(images_np.shape)
-        print(combined_images.shape)
+        for i in tqdm(range(len(images_np))):
+            combined_images.append(images_np[i])
+            combined_commands.append(commands_np[i])
 
-        combined_images = np.append(combined_images, images_np, axis=0)
-        combined_commands = np.append(combined_commands, commands_np, axis=0)
+        combined_images_np = np.array(combined_images)
+        combined_commands_np = np.array(combined_commands)
 
-        print(combined_images.shape)
-        print(combined_commands.shape)
+        print(combined_images_np.shape)
+        print(combined_commands_np.shape)
+
+        hf = h5py.File("combined.h5", 'w')
+
+        hf.create_dataset('images', data=combined_images_np.astype('int'))
+        hf.create_dataset('commands', data=combined_commands_np)
+
+        hf.close()
 
 
 if __name__ == "__main__":

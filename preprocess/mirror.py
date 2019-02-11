@@ -7,13 +7,14 @@ import time
 
 import cv2
 
+axis=1
 filename = None
 
 def parse_args(args):
-    global filename
+    global filename, axis
 
     try:
-        opts, args = getopt.getopt(args, "i:")
+        opts, args = getopt.getopt(args, "i:h")
     except getopt.GetoptError as err:
         print(str(err))
         sys.exit()
@@ -21,6 +22,8 @@ def parse_args(args):
     for o, a in opts:
         if o in ("-i", "--input"):
             filename = a
+        elif o in ("-h", "--horizontal"):
+            axis = 0
         else:
             assert False, "Unhandled option"
 
@@ -40,7 +43,7 @@ def mirror():
     commands_mirrored = np.empty(shape=commands_np.shape)
 
     for i in tqdm(range(len(images_np))):
-        images_mirrored[i] = cv2.flip(images_np[i], 1)
+        images_mirrored[i] = cv2.flip(images_np[i], axis)
         commands_mirrored[0] = -commands_mirrored[0]
 
     print(images_mirrored[0].astype('int'))
