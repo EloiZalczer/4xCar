@@ -44,16 +44,18 @@ def mirror():
 
     for i in tqdm(range(len(images_np))):
         images_mirrored[i] = cv2.flip(images_np[i], axis)
-        commands_mirrored[0] = -commands_mirrored[0]
-
-    print(images_mirrored[0].astype('int'))
+        commands_mirrored[i][1] = commands_np[i][1]
+        if axis == 1:
+            commands_mirrored[i][0] = -commands_np[i][0]
+        else:
+            commands_mirrored[i][0] = commands_np[i][0]
 
     new_filename = time.strftime("%Y%m%d%H%M%S") + ".h5"
 
     hf = h5py.File(new_filename, 'w')
 
     hf.create_dataset('images', data=images_mirrored.astype('int'))
-    hf.create_dataset('commands', data=commands_np)
+    hf.create_dataset('commands', data=commands_mirrored)
 
     hf.close()
 
