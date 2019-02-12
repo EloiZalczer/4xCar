@@ -50,9 +50,7 @@ def mirror():
         else:
             commands_mirrored[i][0] = commands_np[i][0]
 
-    new_filename = time.strftime("%Y%m%d%H%M%S") + ".h5"
-
-    hf = h5py.File(new_filename, 'w')
+    hf = h5py.File("mirrored.h5", 'w')
 
     hf.create_dataset('images', data=images_mirrored.astype('int'))
     hf.create_dataset('commands', data=commands_mirrored)

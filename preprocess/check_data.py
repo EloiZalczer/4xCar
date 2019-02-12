@@ -2,7 +2,7 @@
 
 import sys, getopt, os
 import numpy as np
-from matplotlib import pyplot as plt
+import cv2
 
 import h5py
 
@@ -49,12 +49,37 @@ def read_hdf5(filename):
     print(len(images_np))
     commands_np = np.array(commands)
 
-    for i in range(700, len(images_np)):
+    images_filtered = []
+    commands_filtered = []
+
+    for i in range(len(images_np)):
         #if commands_np[i][0] != 0:
-        plt.figure()
-        plt.imshow(images_np[i])
-        plt.show()
-        print("Direction : ", commands_np[i][0], " speed : ", commands_np[i][1])
+        image_title = "Dir : " + str(commands_np[i][0]) + " spd : " + str(commands_np[i][1])
+
+        im = cv2.resize(images_np[i], (600, 198))
+
+        cv2.imshow(image_title, im)
+
+        key = cv2.waitKey(0)
+
+        if key & 0xFF == ord('y'):
+            images_filtered.append(images_np[i])
+            commands_filtered.append(commands_np[i])
+
+        print(i+1, "images processed")
+
+        cv2.destroyAllWindows()
+
+    images_filtered_np = np.array(images_filtered)
+    commands_filtered_np = np.array(commands_filtered)
+
+    hf = h5py.File("filtered.h5", 'w')
+
+    hf.create_dataset('images', data=images_filtered_np.astype('int'))
+    hf.create_dataset('commands', data=commands_filtered_np)
+
+    hf.close()
+
 
 if __name__ == "__main__":
     parse_args(sys.argv[1:])

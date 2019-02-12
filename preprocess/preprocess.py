@@ -12,7 +12,7 @@ filename = None
 
 
 class Preprocessor:
-    def __init__(self, filename, save_after_filter=False, shuffle=True):
+    def __init__(self, filename, save_after_filter=True):
         self.hf = h5py.File(filename, 'r')
 
         self.images = self.hf.get('images')
@@ -22,8 +22,6 @@ class Preprocessor:
         self.commands_np = np.array(self.commands)
 
         self.save_after_filter = save_after_filter
-
-        self.shuffle = shuffle
 
         self.filters = []
 
@@ -35,20 +33,11 @@ class Preprocessor:
         for filter in self.filters:
             filtered_images, commands = filter.process(np.copy(self.images_np), np.copy(self.commands_np))
             if self.save_after_filter:
-                self.images_np = np.append(self.images_np, filtered_images, axis=0)
-                self.commands_np = np.append(self.commands_np, commands, axis=0)
+                self.images_np = np.concatenate((self.images_np, filtered_images), axis=0)
+                self.commands_np = np.concatenate((self.commands_np, commands), axis=0)
             else:
                 self.images_np = filtered_images
                 self.commands_np = commands
-
-        data = np.c_[
-            self.images_np.reshape(len(self.images_np), -1), self.commands_np.reshape(len(self.commands_np), -1)].astype("int")
-
-        if self.shuffle:
-            np.random.shuffle(data)
-
-        self.images_np = data[:, :self.images_np.size//len(self.images_np)].reshape(self.images_np.shape)
-        self.commands_np = data[:, self.images_np.size//len(self.images_np):].reshape(self.commands_np.shape)
 
         self.disp_random()
 
@@ -172,7 +161,7 @@ def parse_args(args):
 if __name__ == "__main__":
     parse_args(sys.argv[1:])
 
-    preprocessor = Preprocessor(filename, save_after_filter=False, shuffle=True)
+    preprocessor = Preprocessor(filename)
 
     preprocessor.add(Exposure(1.5, 30))
     # preprocessor.add(Crop(0.05))
