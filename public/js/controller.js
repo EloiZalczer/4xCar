@@ -57,16 +57,19 @@ window.onload = function(){
 
 	canvas.addEventListener('touchmove', function(evt){
 		if(mousedown){
-			var touches = evt.changedTouches;
 			coord = getTouchPos(evt)
 			console.log(coord)
 			prev_direction = command.direction;
 			prev_speed = command.speed;
-			command.direction = - Math.round(coord.x*(60/width) - 30);
-			command.speed = Math.round(30 - coord.y*(30/height));
-			displayBall(coord);
-			if(running && (prev_direction != command.direction || prev_speed != command.speed)){
-				sendData();
+			direction = - Math.round(coord.x*(60/width) - 30);
+			speed = Math.round(30 - coord.y*(30/height));
+			if(speed<=30 && speed>=0 && direction <=30 && direction >=-30){
+				command.direction = direction
+				command.speed = speed
+				displayBall(coord);
+				if(running && (prev_direction != command.direction || prev_speed != command.speed)){
+					sendData();
+				}
 			}
 		}
 	})
