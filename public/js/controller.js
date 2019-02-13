@@ -73,9 +73,9 @@ window.onload = function(){
 }
 
 function connect(){
-	socket = io.connect("http://localhost:3000/");
+	socket = io.connect("http://192.168.43.45:3000/");
 	socket.on("connect_failed", () => {alert("Connection failed");})
-	socket.on("connect", function(){
+	socket.on("connect", function(){ 
 		connected = true;
 	});
 }

@@ -133,6 +133,7 @@ class AutoPilot(Pilot):
                 self.verbose_print("Time for one iteration : ", time.time() - start_time)
             else:
                 print("Stopping the car.")
+                self.ser.write(bytes([90, 90, 0]))
                 self.startEvent.wait()
                 self.startEvent.clear()
                 self.stopEvent.clear()
@@ -179,6 +180,9 @@ class ManualPilot(Pilot):
         def stop_car():
             print("Stop signal received.")
             self.stopEvent.set()
+            self.direction = 0
+            self.speed = 0
+            self.ser.write(bytes([self.direction + 90, self.speed + 90, 0]))
             self.running = False
 
         @self.socket.on('max_speed')
