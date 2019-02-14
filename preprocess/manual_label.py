@@ -58,11 +58,9 @@ def label_hdf5(filename):
     hf = h5py.File(filename, 'r')
 
     images = hf.get('images')
-    commands = hf.get('commands')
 
     images_np = np.array(images)
     print(len(images_np), "total images in file.")
-    commands_np = np.array(commands)
 
     images_labeled = []
     commands_labeled = []
@@ -89,7 +87,9 @@ def label_hdf5(filename):
     images_labeled_np = np.array(images_labeled)
     commands_labeled_np = np.array(commands_labeled)
 
-    hf = h5py.File("labelled.h5", 'w')
+    new_filename = filename.split('.')[0] + "labelled.h5"
+
+    hf = h5py.File(new_filename, 'w')
 
     hf.create_dataset('images', data=images_labeled_np.astype('uint8'))
     hf.create_dataset('commands', data=commands_labeled_np)
