@@ -52,7 +52,7 @@ def mirror():
 
     hf = h5py.File("mirrored.h5", 'w')
 
-    hf.create_dataset('images', data=images_mirrored.astype('int'))
+    hf.create_dataset('images', data=images_mirrored.astype('uint8'))
     hf.create_dataset('commands', data=commands_mirrored)
 
     hf.close()

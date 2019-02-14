@@ -34,7 +34,7 @@ def combine_hdf5():
 
         hf = h5py.File("combined.h5", 'w')
 
-        hf.create_dataset('images', data=combined_images_np.astype('int'))
+        hf.create_dataset('images', data=combined_images_np.astype('uint8'))
         hf.create_dataset('commands', data=combined_commands_np)
 
         hf.close()

@@ -224,7 +224,7 @@ class ManualPilot(Pilot):
                 if self.recording:
                     self.images.append(self.camera.read())
                     self.commands.append((self.direction, self.speed))
-                    time.sleep(.05)
+                    time.sleep(.25)
 
     def save_hdf5(self):
 

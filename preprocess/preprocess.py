@@ -91,11 +91,11 @@ class Crop:
 
         for i in tqdm(range(len(images))):
 
-            dimX = np.around((1 - self.proportion)*images[i].shape[1]).astype("int")
-            dimY = np.around((1 - self.proportion)*images[i].shape[0]).astype("int")
+            dimX = np.around((1 - self.proportion)*images[i].shape[1]).astype("uint8")
+            dimY = np.around((1 - self.proportion)*images[i].shape[0]).astype("uint8")
 
-            startX = np.around(np.random.uniform()*self.proportion*images[i].shape[1]).astype("int")
-            startY = np.around(np.random.uniform()*self.proportion*images[i].shape[0]).astype("int")
+            startX = np.around(np.random.uniform()*self.proportion*images[i].shape[1]).astype("uint8")
+            startY = np.around(np.random.uniform()*self.proportion*images[i].shape[0]).astype("uint8")
 
             tmp_image = images[i][startX:startX+dimX, startY:startY+dimY]
             images[i] = cv2.resize(tmp_image,(images[i].shape[1],images[i].shape[0]))
@@ -113,11 +113,11 @@ class Obstacle:
         print("Adding Obstacles")
 
         for i in tqdm(range(len(images))):
-            dimX = np.around(np.random.uniform() * self.max_X).astype("int")
-            dimY = np.around(np.random.uniform() * self.max_Y).astype("int")
+            dimX = np.around(np.random.uniform() * self.max_X).astype("uint8")
+            dimY = np.around(np.random.uniform() * self.max_Y).astype("uint8")
 
-            startX = np.around(np.random.uniform() * (images[i].shape[1] - dimX)).astype("int")
-            startY = np.around(np.random.uniform() * (images[i].shape[0] - dimY)).astype("int")
+            startX = np.around(np.random.uniform() * (images[i].shape[1] - dimX)).astype("uint8")
+            startY = np.around(np.random.uniform() * (images[i].shape[0] - dimY)).astype("uint8")
 
             images[i][startX:startX+dimX, startY:startY+dimY] = 0
 
