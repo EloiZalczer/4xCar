@@ -5,7 +5,6 @@ import numpy as np
 import cv2
 
 import h5py
-import math
 
 filename = None
 

@@ -7,14 +7,13 @@ import time
 
 import cv2
 
-axis=1
 filename = None
 
 def parse_args(args):
-    global filename, axis
+    global filename
 
     try:
-        opts, args = getopt.getopt(args, "i:h")
+        opts, args = getopt.getopt(args, "i:")
     except getopt.GetoptError as err:
         print(str(err))
         sys.exit()
@@ -22,13 +21,11 @@ def parse_args(args):
     for o, a in opts:
         if o in ("-i", "--input"):
             filename = a
-        elif o in ("-h", "--horizontal"):
-            axis = 0
         else:
             assert False, "Unhandled option"
 
 
-def mirror():
+def augment():
     hf = h5py.File(filename, 'r')
 
     images = hf.get('images')
@@ -39,26 +36,25 @@ def mirror():
 
     print(images_np.shape)
 
-    images_mirrored = np.empty(shape=images_np.shape)
-    commands_mirrored = np.empty(shape=commands_np.shape)
-
     for i in tqdm(range(len(images_np))):
-        images_mirrored[i] = cv2.flip(images_np[i], axis)
-        if axis == 1:
-            commands_mirrored[i] = -commands_np[i]
-        else:
-            commands_mirrored[i] = commands_np[i]
+        new_cmd = commands_np[i]*1.4
+        if new_cmd>30:
+            new_cmd=30
+        elif new_cmd<-30:
+            new_cmd=-30
 
-    new_filename = filename.split('.')[0] + "mirrored.h5"
+        commands_np[i] = new_cmd
+
+    new_filename = filename.split('.')[0] + "augmented.h5"
 
     hf = h5py.File(new_filename, 'w')
 
-    hf.create_dataset('images', data=images_mirrored.astype('uint8'))
-    hf.create_dataset('commands', data=commands_mirrored)
+    hf.create_dataset('images', data=images_np)
+    hf.create_dataset('commands', data=commands_np)
 
     hf.close()
 
 if __name__ == "__main__":
     parse_args(sys.argv[1:])
 
-    mirror()
+    augment()

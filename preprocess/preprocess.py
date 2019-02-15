@@ -39,8 +39,6 @@ class Preprocessor:
                 self.images_np = filtered_images
                 self.commands_np = commands
 
-        self.disp_random()
-
         print("Taille : ", self.images_np.shape)
 
         self.save_hdf5()
@@ -59,7 +57,7 @@ class Preprocessor:
 
         hf = h5py.File(filename, 'w')
 
-        hf.create_dataset('images', data=self.images_np)
+        hf.create_dataset('images', data=self.images_np.astype('uint8'))
         hf.create_dataset('commands', data=self.commands_np)
 
         hf.close()
@@ -163,10 +161,9 @@ if __name__ == "__main__":
 
     preprocessor = Preprocessor(filename)
 
-    preprocessor.add(Exposure(1.5, 30))
+    preprocessor.add(Exposure(1.25, 15))
     # preprocessor.add(Crop(0.05))
     preprocessor.add(GaussianNoise(1))
-    preprocessor.add(Obstacle(100, 50))
 
     preprocessor.run()
 

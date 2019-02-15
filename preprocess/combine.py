@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 import h5py
 
-filenames = ["from_generator_test.h5"]
+filenames = ["combinedlabelledaugmented.h5", "combinedlabelledaugmentedmirrored.h5"]
 
 def combine_hdf5():
 
