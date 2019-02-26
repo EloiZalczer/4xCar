@@ -51,9 +51,8 @@ class Pilot(ABC):
 
 
 class AutoPilot(Pilot):
-    def __init__(self,  verbose_print, serial_address, socket_address,
-                 model_path='ironcar/models/keras_model_simplified_no_preprocess.h5',
-                 max_speed=30):
+    def __init__(self,  verbose_print, serial_address, socket_address, model_path = 'ironcar/models/second_irl_trained_model_balanced.h5',
+                max_speed=10):
 
         super().__init__(verbose_print, serial_address, socket_address, max_speed)
         self.model_path = model_path
@@ -117,32 +116,23 @@ class AutoPilot(Pilot):
                 with self.graph.as_default():
                     pred = self.model.predict(input)
 
-                # Si la direction inferee est trop differente de celle actuelle, on la moyenne avec la precedente pour
-                # limiter les effets des predictions aberrantes
-
+                print(pred[0])
                 direction = int(np.round(pred[0][0] * 30))
-                if direction > self.last_direction+20 or direction < self.last_direction - 20:
-                    direction = self.last_direction + direction / 2
 
                 self.verbose_print("Command from network : ", direction)
-                speed = 1
-                self.ser.write(bytes([direction + 90, speed + 90, 0]))
-
-                self.last_direction = direction
+                self.ser.write(bytes([direction + 90, self.max_speed + 90, 0]))
 
                 self.verbose_print("Time for one iteration : ", time.time() - start_time)
             else:
                 print("Stopping the car.")
-                self.ser.write(bytes([90, 90, 0]))
                 self.startEvent.wait()
                 self.startEvent.clear()
                 self.stopEvent.clear()
                 print("Restarting the car.")
 
-
 class ManualPilot(Pilot):
 
-    def __init__(self, verbose_print, serial_address, socket_address, framerate=20, max_speed=30):
+    def __init__(self, verbose_print, serial_address, socket_address, max_speed=30):
         super().__init__(verbose_print, serial_address, socket_address, max_speed)
         self.recording = False
         self.running = False
@@ -150,7 +140,6 @@ class ManualPilot(Pilot):
         self.images = []
         self.direction = 0
         self.speed = 0
-        self.framerate = framerate
         self.camera.start()
 
     def start(self):
@@ -180,9 +169,6 @@ class ManualPilot(Pilot):
         def stop_car():
             print("Stop signal received.")
             self.stopEvent.set()
-            self.direction = 0
-            self.speed = 0
-            self.ser.write(bytes([self.direction + 90, self.speed + 90, 0]))
             self.running = False
 
         @self.socket.on('max_speed')
@@ -216,8 +202,6 @@ class ManualPilot(Pilot):
             if self.stopEvent.is_set():
                 print("Stopping the car.")
                 self.save_hdf5()
-                self.images = []
-                self.commands = []
                 self.startEvent.wait()
                 self.startEvent.clear()
                 self.stopEvent.clear()
@@ -226,7 +210,8 @@ class ManualPilot(Pilot):
                 if self.recording:
                     self.images.append(self.camera.read())
                     self.commands.append((self.direction, self.speed))
-                    time.sleep(.25)
+                    print("Image recorded")
+                    time.sleep(.20)
 
     def save_hdf5(self):
 

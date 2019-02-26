@@ -1,28 +1,48 @@
 #!/usr/bin/python
 
 import sys, getopt
+import time
 
 from pilot import AutoPilot, ManualPilot
 
-DEFAULT_IP_ADDRESS = "http://192.168.43.45:3000"
+import tensorflow as tf
+from tensorflow import get_default_graph
+from tensorflow.python.keras.models import load_model
+from tensorflow.python.keras.utils import CustomObjectScope
+from tensorflow.python.keras.initializers import glorot_uniform
+# from keras.models import load_model
+# from keras.utils import CustomObjectScope
+# from keras.initializers import glorot_uniform
+
+from threading import Thread, Event
+
+import numpy as np
+
+import socketio
+
+import h5py
+
+import serial
+
+DEFAULT_IP_ADDRESS = "http://192.168.43.158:3000"
 DEFAULT_SERIAL_ADDRESS = "/dev/ttyACM0"
+DEFAULT_MODEL_PATH = "ironcar/models/second_irl_trained_model_balanced.h5"
 
 verbose = False
-manual_mode = False
+manual_mode=False
 serial_address = DEFAULT_SERIAL_ADDRESS
 socket_address = DEFAULT_IP_ADDRESS
-
+model_path = DEFAULT_MODEL_PATH
 
 def print_help():
-    print("Usage : python3.6 main.py [-h|--help] [-v|--verbose] [-a|--address <ip_address>] [-m|--manual] [-s|--serial <serial_address>]")
-
+    print("Usage : python3.6 main.py [-h|--help] [-v|--verbose] [-a|--address <ip_address>]")
 
 def parse_args(args):
 
-    global verbose, serial_address, socket_address, manual_mode
+    global verbose, serial_address, socket_address, manual_mode, to_hdf5
 
     try:
-        opts, args = getopt.getopt(args, "a:s:hvm")
+        opts, args = getopt.getopt(args, "a:s:p:hvm")
     except getopt.GetoptError as err:
         print(str(err))
         print_help()
@@ -40,6 +60,8 @@ def parse_args(args):
             manual_mode = True
         elif o in ("-s", "--serial"):
             serial_address = a
+        elif o in ("-p", "--path"):
+            model_path = a
         else:
             assert False, "Unhandled option"
 
@@ -47,7 +69,7 @@ if __name__ == '__main__':
     parse_args(sys.argv[1:])
 
     if not manual_mode:
-        pilot = AutoPilot(verbose, serial_address, socket_address)
+        pilot = AutoPilot(verbose, serial_address, socket_address, model_path=model_path)
     else:
         pilot = ManualPilot(verbose, serial_address, socket_address)
 
