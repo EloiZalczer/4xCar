@@ -74,10 +74,11 @@ def label_hdf5(filename):
         cv2.setMouseCallback(title, on_mouse, 0)
         cv2.imshow(title, im)
 
-        cv2.waitKey(0)
+        key = cv2.waitKey(0)
 
-        images_labeled.append(images_np[i])
-        commands_labeled.append(new_label)
+        if key & 0xFF != ord('n'):
+            images_labeled.append(images_np[i])
+            commands_labeled.append(new_label)
 
         print(i + 1, "images processed")
 

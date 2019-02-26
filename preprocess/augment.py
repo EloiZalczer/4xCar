@@ -1,11 +1,7 @@
 import h5py
 import numpy as np
-import cv2
 import sys, getopt
 from tqdm import tqdm
-import time
-
-import cv2
 
 filename = None
 
@@ -37,7 +33,7 @@ def augment():
     print(images_np.shape)
 
     for i in tqdm(range(len(images_np))):
-        new_cmd = commands_np[i]*1.4
+        new_cmd = commands_np[i]*1.3
         if new_cmd>30:
             new_cmd=30
         elif new_cmd<-30:

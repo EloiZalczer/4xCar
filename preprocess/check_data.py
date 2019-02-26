@@ -53,7 +53,6 @@ def read_hdf5(filename):
     commands_filtered = []
 
     for i in range(len(images_np)):
-        #if commands_np[i][0] != 0:
         image_title = "Dir : " + str(commands_np[i][0]) + " spd : " + str(commands_np[i][1])
 
         im = cv2.resize(images_np[i], (600, 198))
@@ -75,7 +74,7 @@ def read_hdf5(filename):
 
     hf = h5py.File("filtered.h5", 'w')
 
-    hf.create_dataset('images', data=images_filtered_np.astype('int'))
+    hf.create_dataset('images', data=images_filtered_np.astype('uint8'))
     hf.create_dataset('commands', data=commands_filtered_np)
 
     hf.close()

@@ -216,6 +216,8 @@ class ManualPilot(Pilot):
             if self.stopEvent.is_set():
                 print("Stopping the car.")
                 self.save_hdf5()
+                self.images = []
+                self.commands = []
                 self.startEvent.wait()
                 self.startEvent.clear()
                 self.stopEvent.clear()

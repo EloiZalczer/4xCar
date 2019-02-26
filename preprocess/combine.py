@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 import h5py
 
-filenames = ["combinedlabelledaugmented.h5", "combinedlabelledaugmentedmirrored.h5"]
+filenames = ["combinednotmirrored.h5", "filteredlabelled.h5"]
 
 def combine_hdf5():
 
@@ -32,7 +32,7 @@ def combine_hdf5():
         print(combined_images_np.shape)
         print(combined_commands_np.shape)
 
-        hf = h5py.File("combined.h5", 'w')
+        hf = h5py.File("combined_new.h5", 'w')
 
         hf.create_dataset('images', data=combined_images_np.astype('uint8'))
         hf.create_dataset('commands', data=combined_commands_np)
