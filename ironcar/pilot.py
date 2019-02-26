@@ -49,8 +49,8 @@ class Pilot(ABC):
         pass
 
 class AutoPilot(Pilot):
-    def __init__(self,  verbose_print, serial_address, socket_address, model_path = 'ironcar/models/keras_model_simplified_no_preprocess.h5',
-                max_speed=30):
+    def __init__(self,  verbose_print, serial_address, socket_address, model_path = 'ironcar/models/first_irl_trained_model_motherfucker.h5',
+                max_speed=10):
 
         super().__init__(verbose_print, serial_address, socket_address, max_speed)
         self.model_path = model_path
@@ -117,8 +117,7 @@ class AutoPilot(Pilot):
                 direction = int(np.round(pred[0][0] * 30))
 
                 self.verbose_print("Command from network : ", direction)
-                speed = 1
-                self.ser.write(bytes([direction + 90, speed + 90, 0]))
+                self.ser.write(bytes([direction + 90, self.max_speed + 90, 0]))
 
                 self.verbose_print("Time for one iteration : ", time.time() - start_time)
             else:
@@ -208,7 +207,8 @@ class ManualPilot(Pilot):
                 if self.recording:
                     self.images.append(self.camera.read())
                     self.commands.append((self.direction, self.speed))
-                    time.sleep(.05)
+                    print("Image recorded")
+                    time.sleep(.20)
 
     def save_hdf5(self):
 
