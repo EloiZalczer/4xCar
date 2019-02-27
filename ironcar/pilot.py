@@ -17,6 +17,7 @@ from tensorflow.python.keras.initializers import glorot_uniform
 
 from camera import PiVideoStream
 
+commands = [-25, -10, 0, 10, 25]
 
 class Pilot(ABC):
     def __init__(self, verbose, serial_address, socket_address, max_speed=30):
@@ -100,6 +101,7 @@ class AutoPilot(Pilot):
         self.graph = get_default_graph()
 
     def mainloop(self):
+        global commands
 
         self.startEvent.wait()
         self.startEvent.clear()
@@ -116,8 +118,7 @@ class AutoPilot(Pilot):
                 with self.graph.as_default():
                     pred = self.model.predict(input)
 
-                print(pred[0])
-                direction = int(np.round(pred[0][0] * 30))
+                direction = commands[pred[0][0]]
 
                 self.verbose_print("Command from network : ", direction)
                 self.ser.write(bytes([direction + 90, self.max_speed + 90, 0]))
