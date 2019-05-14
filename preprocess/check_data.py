@@ -46,7 +46,7 @@ def read_hdf5(filename):
     commands = hf.get('commands')
 
     images_np = np.array(images)
-    print(len(images_np))
+    print(len(images_np), "total images in file.")
     commands_np = np.array(commands)
 
     images_filtered = []
@@ -65,6 +65,11 @@ def read_hdf5(filename):
             images_filtered.append(images_np[i])
             commands_filtered.append(commands_np[i])
 
+        if key & 0xFF == ord('e'):
+            cv2.destroyAllWindows()
+            print("Ending there and saving file.")
+            break
+
         print(i+1, "images processed")
 
         cv2.destroyAllWindows()
@@ -72,7 +77,9 @@ def read_hdf5(filename):
     images_filtered_np = np.array(images_filtered)
     commands_filtered_np = np.array(commands_filtered)
 
-    hf = h5py.File("filtered.h5", 'w')
+    new_filename = filename.split('.')[0] + ".filtered.h5"
+
+    hf = h5py.File(new_filename, 'w')
 
     hf.create_dataset('images', data=images_filtered_np.astype('uint8'))
     hf.create_dataset('commands', data=commands_filtered_np)
